@@ -15,3 +15,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export { db };
+
+export const NEW_ROOM_SCHEMA = {
+  members: [],
+  code: "",
+};
