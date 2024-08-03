@@ -21,3 +21,5 @@ export const NEW_ROOM_SCHEMA = {
   code: "",
   accessToken: ""
 };
+
+export type Room = typeof NEW_ROOM_SCHEMA;
