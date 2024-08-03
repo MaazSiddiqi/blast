@@ -19,4 +19,5 @@ export { db };
 export const NEW_ROOM_SCHEMA = {
   members: [],
   code: "",
+  accessToken: ""
 };

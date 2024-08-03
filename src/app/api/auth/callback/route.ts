@@ -1,9 +1,7 @@
 import { env } from "@/env";
-import { redirect } from "next/navigation";
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import request from "request";
-import { token } from "../token/route";
-import { addDoc, setDoc } from "firebase/firestore";
+import { setDoc, doc} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export async function GET(req: NextRequest) {
@@ -34,11 +32,8 @@ export async function GET(req: NextRequest) {
     if (!error && response.statusCode === 200) {
       const { access_token } = body as { access_token: string };
       console.log(access_token);
-
-      redirect("/");
-    } else {
-    }
+    } 
   });
 
-  return new Response("Could not find token", { status: 500 });
+  return NextResponse.redirect(new URL("/", req.url));
 }
