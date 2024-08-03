@@ -2,7 +2,7 @@
 
 import HostRoom from "@/app/_components/hostRoom";
 import UserRoom from "@/app/_components/userRoom";
-import { db, type Room } from "@/lib/firebase";
+import { db, Queue, type Room } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 
@@ -11,6 +11,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const name = useMemo(() => localStorage.getItem("name"), []);
 
   const [room, setRoom] = useState<Room>();
+  const [queue, setQueue] = useState<Queue>();
   const isHost = useMemo(() => room?.hostname === name, [room, name]);
 
   useEffect(() => {
@@ -21,13 +22,23 @@ export default function Page({ params }: { params: { id: string } }) {
     });
   }, [id]);
 
-  if (!room) return null;
+  useEffect(() => {
+    if (!room) return;
 
-  // return <div className="min-h-screen w-screen bg-slate-200">{room.code}</div>;
+    return onSnapshot(doc(db, "queue", room.queueId), (snapshot) => {
+      console.log(snapshot.data());
+
+      setQueue(snapshot.data() as Queue);
+    });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room]);
+
+  if (!room) return null;
 
   if (isHost) {
     return <HostRoom room={room} />;
   } else {
-    return <UserRoom room={room} id={id} />;
+    return <UserRoom room={room} id={id} queue={queue} />;
   }
 }

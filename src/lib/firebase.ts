@@ -25,14 +25,18 @@ export const NEW_ROOM_SCHEMA = {
     uri: "",
   },
   playback_time: 0,
-  // queue:
+  queueId: "",
 
   newSuggestion: "",
   blast: "",
 };
 
 export const NEW_QUEUE_SCHEMA = {
-  tracks: [],
+  tracks: [] as {
+    name: string;
+    uri: string;
+  }[],
 };
 
 export type Room = typeof NEW_ROOM_SCHEMA;
+export type Queue = typeof NEW_QUEUE_SCHEMA;

@@ -10,7 +10,13 @@ import {
 } from "@/_components/ui/input-otp";
 import { Label } from "@/_components/ui/label";
 import { Separator } from "@/_components/ui/separator";
-import { db, NEW_ROOM_SCHEMA, Room } from "@/lib/firebase";
+import {
+  db,
+  NEW_QUEUE_SCHEMA,
+  NEW_ROOM_SCHEMA,
+  Queue,
+  Room,
+} from "@/lib/firebase";
 import {
   addDoc,
   collection,
@@ -54,11 +60,16 @@ export default function InitForm() {
     const roomCode = Math.floor(100000 + Math.random() * 900000);
     localStorage.setItem("name", name);
 
+    const queueRes = await addDoc(collection(db, "queue"), {
+      ...NEW_QUEUE_SCHEMA,
+    } satisfies Queue);
+
     const res = await addDoc(collection(db, "rooms"), {
       ...NEW_ROOM_SCHEMA,
       code: roomCode,
       hostname: name,
       members: [name],
+      queueId: queueRes.id,
     } satisfies Room);
 
     router.push(`/room/${res.id}`);

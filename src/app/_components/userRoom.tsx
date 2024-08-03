@@ -1,22 +1,16 @@
 "use client";
 
-import { db, type Room } from "@/lib/firebase";
-import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { db, type Queue, type Room } from "@/lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
 import { useEffect } from "react";
 
 type UserRoomProps = {
   id: string;
   room: Room;
+  queue: Queue | undefined;
 };
 
-export default function UserRoom({ room, id }: UserRoomProps) {
+export default function UserRoom({ room, id, queue }: UserRoomProps) {
   useEffect(() => {
     const name = localStorage.getItem("name");
 
@@ -48,6 +42,10 @@ export default function UserRoom({ room, id }: UserRoomProps) {
           {room.members.map((member) => (
             <p key={member}>{member}</p>
           ))}
+        </div>
+        <div>
+          <p>Queue</p>
+          {queue?.tracks.map((track) => <p key={track.uri}>{track.name}</p>)}
         </div>
       </div>
     </div>
