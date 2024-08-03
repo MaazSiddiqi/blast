@@ -17,8 +17,22 @@ const db = getFirestore(app);
 export { db };
 
 export const NEW_ROOM_SCHEMA = {
-  members: [],
-  code: "",
+  code: -1,
+  members: [] as string[],
+  hostname: "",
+  currentTrack: {
+    name: "",
+    uri: "",
+  },
+  playback_time: 0,
+  // queue:
+
+  newSuggestion: "",
+  blast: "",
+};
+
+export const NEW_QUEUE_SCHEMA = {
+  tracks: [],
 };
 
 export type Room = typeof NEW_ROOM_SCHEMA;

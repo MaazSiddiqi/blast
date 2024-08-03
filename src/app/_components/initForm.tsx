@@ -10,10 +10,20 @@ import {
 } from "@/_components/ui/input-otp";
 import { Label } from "@/_components/ui/label";
 import { Separator } from "@/_components/ui/separator";
-import { db, NEW_ROOM_SCHEMA } from "@/lib/firebase";
-import { addDoc, collection } from "firebase/firestore";
+import { db, NEW_ROOM_SCHEMA, Room } from "@/lib/firebase";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 
 export default function InitForm() {
   const router = useRouter();
@@ -21,17 +31,35 @@ export default function InitForm() {
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
 
-  const handleJoinRoom = () => {
-    console.log("Joining room with code " + code);
+  const handleJoinRoom = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    localStorage.setItem("name", name);
+    console.log({ code });
+
+    const res = await getDocs(
+      query(collection(db, "rooms"), where("code", "==", parseInt(code))),
+    );
+
+    console.log({ res });
+
+    if (res.empty) return;
+    const Doc = res.docs[0];
+    if (!Doc?.exists()) return;
+
+    router.push(`/room/${Doc.id}`);
   };
 
   const handleCreateRoom = async () => {
     const roomCode = Math.floor(100000 + Math.random() * 900000);
+    localStorage.setItem("name", name);
 
     const res = await addDoc(collection(db, "rooms"), {
       ...NEW_ROOM_SCHEMA,
       code: roomCode,
-    });
+      hostname: name,
+      members: [name],
+    } satisfies Room);
 
     router.push(`/room/${res.id}`);
   };
