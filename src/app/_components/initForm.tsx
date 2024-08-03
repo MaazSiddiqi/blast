@@ -10,27 +10,16 @@ import {
 import { Separator } from "@/_components/ui/separator";
 import { db, NEW_ROOM_SCHEMA } from "@/lib/firebase";
 import { addDoc, collection } from "firebase/firestore";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function InitForm() {
-  const router = useRouter();
 
   const [code, setCode] = useState("");
 
   const handleJoinRoom = () => {
     console.log("Joining room with code " + code);
-  };
-
-  const handleCreateRoom = async () => {
-    const roomCode = Math.floor(100000 + Math.random() * 900000);
-
-    const res = await addDoc(collection(db, "rooms"), {
-      ...NEW_ROOM_SCHEMA,
-      code: roomCode,
-    });
-
-    router.push(`/room/${res.id}`);
   };
 
   return (
@@ -57,9 +46,9 @@ export default function InitForm() {
       <Separator />
 
       <div className="grid w-full place-items-center">
-        <Button className="w-full" onClick={handleCreateRoom}>
-          create a room
-        </Button>
+        <Link href="/api/auth/login">
+          <Button className="w-full">create a room</Button>
+        </Link>
       </div>
     </div>
   );

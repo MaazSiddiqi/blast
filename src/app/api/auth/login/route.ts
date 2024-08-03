@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     state: generateRandomString(16),
   });
 
-  const auth_url = `https://accounts.spotify.com/authorize?${auth_query_parameters.toString()}`;
+  const auth_url = `https://accounts.spotify.com/authorize?${auth_query_parameters.toString()}`
 
   return Response.redirect(auth_url, 302);
 }

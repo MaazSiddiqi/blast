@@ -1,8 +1,9 @@
 import { env } from "@/env";
 import { type NextRequest, NextResponse } from "next/server";
 import request from "request";
-import { setDoc, doc} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import axios from "axios";
+import { setDoc, doc, addDoc, collection } from "firebase/firestore";
+import { db, NEW_ROOM_SCHEMA } from "@/lib/firebase";
 
 export async function GET(req: NextRequest) {
   const params = new URLSearchParams(req.nextUrl.search);
@@ -26,14 +27,22 @@ export async function GET(req: NextRequest) {
     json: true,
   };
 
-  console.log({ body: authOptions.form });
 
-  request.post(authOptions, function (error, response, body) {
-    if (!error && response.statusCode === 200) {
-      const { access_token } = body as { access_token: string };
-      console.log(access_token);
-    } 
-  });
+  const access_token = await axios
+    .post<{ access_token: string }>(authOptions.url, authOptions.form, {
+      headers: authOptions.headers,
+    })
+    .then((response) => {
+      return response.data.access_token;
+    });
 
-  return NextResponse.redirect(new URL("/", req.url));
+    const roomCode = Math.floor(100000 + Math.random() * 900000);
+
+    const res = await addDoc(collection(db, "rooms"), {
+      ...NEW_ROOM_SCHEMA,
+      code: roomCode,
+      accessToken: access_token
+    });
+
+  return NextResponse.redirect(new URL(`/room/${res.id}`, req.url));
 }
