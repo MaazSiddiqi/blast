@@ -20,3 +20,5 @@ export const NEW_ROOM_SCHEMA = {
   members: [],
   code: "",
 };
+
+export type Room = typeof NEW_ROOM_SCHEMA;
