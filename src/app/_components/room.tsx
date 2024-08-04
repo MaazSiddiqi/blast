@@ -205,6 +205,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
 
     // add the top result selected song uri to the queue
     const song_uri = songs.data.tracks.items[0]!.uri;
+    const song_img = songs.data.tracks.items[0]!.album.images[1].url;
     const song_name = songs.data.tracks.items[0]!.name;
 
     if (newSongExists) {
@@ -219,7 +220,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
       uri: song_uri,
       upvotes: [name],
       downvotes: [],
-      img: "",
+      img: song_img,
       submittedBy: name,
     } satisfies Track;
 
@@ -435,7 +436,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
             <div className="space-y-2 px-4 md:ml-8">
               <p className="text-lg font-bold">now playing</p>
               <div className="flex space-x-2 py-3">
-                <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+                <div className="h-20 w-20 bg-slate-100 text-slate-100"><div><img src={room.currentTrack.img || "https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1114445501.jpg"} alt="Album cover"/></div></div>
                 <div className="">
                   <p className="font-bold">
                     {room.currentTrack.name || "no track playing"}
@@ -462,7 +463,9 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
           <div className="space-y-2 px-4 md:ml-8">
             <p className="text-lg font-bold">now playing</p>
             <div className="flex space-x-2 py-3">
-              <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+              <div className="h-20 w-20">
+               <img src={room.currentTrack.img} alt="Album Cover" />
+              </div>
               <div className="">
                 <p className="font-bold">{room.currentTrack.name}</p>
               </div>
@@ -489,7 +492,9 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
                 className="flex justify-between space-x-2 px-3 py-3 odd:bg-slate-50"
               >
                 <div className="flex space-x-2">
-                  <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+                  <div className="h-20 w-20">
+                    <img src={track.img} alt="Album cover" />
+                  </div>
                   <div className="">
                     <p className="max-w-[70%] font-bold">{track.name}</p>
                     <p>
