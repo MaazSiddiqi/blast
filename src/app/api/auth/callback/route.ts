@@ -1,7 +1,8 @@
 import { env } from "@/env";
-import { redirect } from "next/navigation";
-import { type NextRequest } from "next/server";
-import request from "request";
+import { db, NEW_ROOM_SCHEMA } from "@/lib/firebase";
+import axios from "axios";
+import { addDoc, collection } from "firebase/firestore";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const params = new URLSearchParams(req.nextUrl.search);
@@ -25,17 +26,38 @@ export async function GET(req: NextRequest) {
     json: true,
   };
 
-  console.log({ body: authOptions.form });
+  const access_token = await axios
+    .post<{ access_token: string }>(authOptions.url, authOptions.form, {
+      headers: authOptions.headers,
+    })
+    .then((response) => {
+      return response.data.access_token;
+    });
 
-  request.post(authOptions, function (error, response, body) {
-    if (!error && response.statusCode === 200) {
-      const { access_token } = body as { access_token: string };
-      console.log(access_token);
+  const device_id = await axios
+    .get<{ devices: { id: string }[] }>(
+      "https://api.spotify.com/v1/me/player/devices",
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    )
+    .then((response) => {
+      // response.data.devices[0].get("id");
+      return response.data.devices[0]?.id;
+    });
 
-      redirect("/");
-    } else {
-    }
+  const roomCode = Math.floor(100000 + Math.random() * 900000);
+
+  const res = await addDoc(collection(db, "rooms"), {
+    ...NEW_ROOM_SCHEMA,
+    code: roomCode,
+    accessToken: access_token,
+    deviceId: device_id,
   });
 
-  return new Response("Could not find token", { status: 500 });
+  return NextResponse.redirect(new URL(`/room/${res.id}`, req.url));
 }
