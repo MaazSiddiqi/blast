@@ -32,11 +32,16 @@ export const NEW_ROOM_SCHEMA = {
 };
 
 export const NEW_QUEUE_SCHEMA = {
-  tracks: [] as {
-    name: string;
-    uri: string;
-  }[],
+  tracks: [] as Track[],
 };
 
 export type Room = typeof NEW_ROOM_SCHEMA;
 export type Queue = typeof NEW_QUEUE_SCHEMA;
+export type Track = {
+  name: string;
+  uri: string;
+  upvotes: string[];
+  downvotes: string[];
+  img: string;
+  submittedBy: string;
+};

@@ -2,7 +2,7 @@
 
 import HostRoom from "@/app/_components/hostRoom";
 import UserRoom from "@/app/_components/userRoom";
-import { db, Queue, type Room } from "@/lib/firebase";
+import { db, type Queue, type Room } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 
@@ -34,7 +34,7 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room]);
 
-  if (!room) return null;
+  if (!room || !queue) return null;
 
   if (isHost) {
     return <HostRoom room={room} />;
