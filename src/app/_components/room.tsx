@@ -196,7 +196,19 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     const songs = (await searchSong({
       search_text: newSong,
       access_token: res.data as string,
-    })) as { data: { tracks: { items: { uri: string; name: string }[] } } };
+    })) as {
+      data: {
+        tracks: {
+          items: {
+            uri: string;
+            name: string;
+            album: {
+              images: { url: string }[];
+            };
+          }[];
+        };
+      };
+    };
 
     if (songs.data.tracks.items.length === 0) {
       alert("Song not found");
@@ -436,7 +448,17 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
             <div className="space-y-2 px-4 md:ml-8">
               <p className="text-lg font-bold">now playing</p>
               <div className="flex space-x-2 py-3">
-                <div className="h-20 w-20 bg-slate-100 text-slate-100"><div><img src={room.currentTrack.img || "https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1114445501.jpg"} alt="Album cover"/></div></div>
+                <div className="h-20 w-20 bg-slate-100 text-slate-100">
+                  <div>
+                    <img
+                      src={
+                        room.currentTrack.img ||
+                        "https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1114445501.jpg"
+                      }
+                      alt="Album cover"
+                    />
+                  </div>
+                </div>
                 <div className="">
                   <p className="font-bold">
                     {room.currentTrack.name || "no track playing"}
@@ -464,7 +486,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
             <p className="text-lg font-bold">now playing</p>
             <div className="flex space-x-2 py-3">
               <div className="h-20 w-20">
-               <img src={room.currentTrack.img} alt="Album Cover" />
+                <img src={room.currentTrack.img} alt="Album Cover" />
               </div>
               <div className="">
                 <p className="font-bold">{room.currentTrack.name}</p>
