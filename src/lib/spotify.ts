@@ -7,13 +7,25 @@ interface SpotifyFunctionProps {
   search_text?: string;
 }
 
+const playbackState = async ({ access_token }: SpotifyFunctionProps) => {
+  const res = await axios.get("https://api.spotify.com/v1/me/players", {
+    headers: { Authorization: `Bearer ${access_token}` },
+  });
+  if (!res.data) return -1;
+
+  return res.data.duration_ms - res.data.progress_ms;
+};
+
 const addQueue = async ({
   uri,
   device_id,
   access_token,
 }: SpotifyFunctionProps) => {
   await axios.post(
-    "https://api.spotify.com/v1/me/player/queue?uri=" + uri + "&device_id=" + device_id,
+    "https://api.spotify.com/v1/me/player/queue?uri=" +
+      uri +
+      "&device_id=" +
+      device_id,
     {},
     { headers: { Authorization: `Bearer ${access_token}` } },
   );
@@ -67,4 +79,12 @@ const searchSong = async ({
     },
   );
 };
-export { addQueue, playSong, pauseSong, skipSong, previousSong, searchSong };
+export {
+  addQueue,
+  playSong,
+  pauseSong,
+  skipSong,
+  previousSong,
+  searchSong,
+  playbackState,
+};
