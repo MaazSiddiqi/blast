@@ -434,7 +434,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
 
   return (
     <div className="relative flex min-h-screen w-screen flex-col">
-      <div className="sticky top-0 ml-8 mt-28 flex w-full flex-col bg-white md:flex-row md:items-center">
+      <div className="ml-8 mt-28 flex w-full flex-col bg-white md:flex-row md:items-center">
         <div className="space-y-4 p-4">
           <h1 className="w-fit bg-slate-50 px-5 py-6 text-6xl font-extrabold">
             {room.code}

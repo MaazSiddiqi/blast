@@ -39,24 +39,32 @@ const addQueue = async ({
 };
 
 const playSong = async ({ device_id, access_token }: SpotifyFunctionProps) => {
-  await axios.put(
-    "https://api.spotify.com/v1/me/player/play",
-    { device_id: device_id },
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        "Content-Type": "application/json",
+  try {
+    await axios.put(
+      "https://api.spotify.com/v1/me/player/play",
+      { device_id: device_id },
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
       },
-    },
-  );
+    );
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const pauseSong = async ({ device_id, access_token }: SpotifyFunctionProps) => {
-  await axios.put(
-    "https://api.spotify.com/v1/me/player/pause",
-    { device_id: device_id },
-    { headers: { Authorization: `Bearer ${access_token}` } },
-  );
+  try {
+    await axios.put(
+      "https://api.spotify.com/v1/me/player/pause",
+      { device_id: device_id },
+      { headers: { Authorization: `Bearer ${access_token}` } },
+    );
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const skipSong = async ({ device_id, access_token }: SpotifyFunctionProps) => {
