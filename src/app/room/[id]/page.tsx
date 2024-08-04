@@ -1,11 +1,10 @@
 "use client";
 
-import { ToastAction } from "@/_components/ui/toast";
 import { useToast } from "@/_components/ui/use-toast";
 import BlastRoom from "@/app/_components/room";
-import { db, Room, type Queue } from "@/lib/firebase";
+import { db, type Room, type Queue } from "@/lib/firebase";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Page({ params }: { params: { id: string } }) {

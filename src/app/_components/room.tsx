@@ -1,11 +1,18 @@
 "use client";
 
 import { Button } from "@/_components/ui/button";
+import { Card } from "@/_components/ui/card";
 import { Input } from "@/_components/ui/input";
 import { Separator } from "@/_components/ui/separator";
 import { ToastAction } from "@/_components/ui/toast";
 import { useToast } from "@/_components/ui/use-toast";
-import { type Blast, db, type Track, type Queue, type Room } from "@/lib/firebase";
+import {
+  type Blast,
+  db,
+  type Track,
+  type Queue,
+  type Room,
+} from "@/lib/firebase";
 import { searchSong } from "@/lib/spotify";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { Label } from "@radix-ui/react-label";
@@ -191,7 +198,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
           img: "",
         },
       } satisfies Partial<Room>);
-    }, 7 * 1000);
+    }, 4 * 1000);
 
     setNewSong("");
   };
@@ -287,6 +294,73 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
       }, 3 * 1000);
     }
   };
+
+  return (
+    <div className="relative flex min-h-screen w-screen flex-col">
+      <div className="sticky top-0 ml-8 mt-28 flex w-full flex-col md:flex-row md:items-center">
+        <div className="space-y-4 p-4">
+          <h1 className="w-fit bg-slate-50 px-5 py-6 text-6xl font-extrabold">
+            {room.code}
+          </h1>
+          <h2 className="text-sm">
+            hosted by: <strong>{room.hostname}</strong>
+          </h2>
+        </div>
+        <div className="space-y-2 px-4 md:ml-8">
+          <p className="text-lg font-bold">now playing</p>
+          <div className="flex space-x-2 py-3">
+            <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+            <div className="">
+              <p className="font-bold">song name</p>
+              <p>artist</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Separator />
+      <div className="ml-8 p-4">
+        <div className="flex space-x-2 py-3">
+          <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+          <div className="">
+            <p className="font-bold">song name</p>
+            <p>artist</p>
+          </div>
+        </div>
+        <div className="flex space-x-2 py-3">
+          <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+          <div className="">
+            <p className="font-bold">song name</p>
+            <p>artist</p>
+          </div>
+        </div>
+        <div className="flex space-x-2 py-3">
+          <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+          <div className="">
+            <p className="font-bold">song name</p>
+            <p>artist</p>
+          </div>
+        </div>
+        {queue.tracks.map((track) => (
+          <div key={track.uri} className="flex space-x-2 py-3">
+            <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+            <div className="">
+              <p className="font-bold">song name</p>
+              <p>artist</p>
+            </div>
+          </div>
+        ))}
+        <div className="fixed bottom-0 left-0 w-screen px-12 py-4">
+          <Card className="flex space-x-3 p-3">
+            <Input
+              value={newSong}
+              onChange={(e) => setNewSong(e.target.value)}
+            />
+            <Button>🚀 Suggest</Button>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen w-screen flex-col items-center justify-center">
