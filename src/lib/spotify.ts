@@ -8,9 +8,12 @@ interface SpotifyFunctionProps {
 }
 
 const playbackState = async ({ access_token }: SpotifyFunctionProps) => {
-  const res = await axios.get("https://api.spotify.com/v1/me/players", {
-    headers: { Authorization: `Bearer ${access_token}` },
-  });
+  const res = await axios.get(
+    "https://api.spotify.com/v1/me/players?market=CA",
+    {
+      headers: { Authorization: `Bearer ${access_token}` },
+    },
+  );
   if (!res.data) return { remaining: 0, uri: "", name: "" };
 
   return {

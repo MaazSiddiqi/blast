@@ -56,41 +56,32 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
   const { toast } = useToast();
 
   // poll spotify track progress every 3 seconds
-  useEffect(() => {
-    if (!host) return;
+  // useEffect(() => {
+  //   if (!host) return;
 
-    const interval = setInterval(() => {
-      const state = async () => {
-        const { name, remaining, uri } = await playbackState({
-          access_token: room.accessToken,
-        });
+  //   const interval = setInterval(
+  //     () => {
+  //       const state = async () => {
+  //         const pop = queue.tracks[0];
 
-        console.log({ name, remaining, uri });
+  //         void updateDoc(doc(db, "queue", room.queueId), {
+  //           tracks: queue.tracks.slice(1),
+  //         });
 
-        if (remaining > 10 * 1000 || queue.tracks.length === 0) {
-          return;
-        }
+  //         void addQueue({
+  //           access_token: room.accessToken,
+  //           device_id: room.deviceId,
+  //           uri: pop!.uri,
+  //         });
+  //       };
 
-        console.log("skipping track");
+  //       void state();
+  //     },
+  //     60 * 2.5 * 1000,
+  //   );
 
-        const pop = queue.tracks[0];
-
-        void updateDoc(doc(db, "queue", room.queueId), {
-          tracks: queue.tracks.slice(1),
-        });
-
-        void addQueue({
-          access_token: room.accessToken,
-          device_id: room.deviceId,
-          uri: pop!.uri,
-        });
-      };
-
-      void state();
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [room.deviceId, room.accessToken, host, room.queueId, queue.tracks]);
+  //   return () => clearInterval(interval);
+  // }, [room.deviceId, room.accessToken, host, room.queueId, queue.tracks]);
 
   useEffect(() => {
     const enterRoom = async () => {
@@ -295,6 +286,13 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
         },
         blasted: [...room.blasted, { track, type: "like" }],
       } satisfies Partial<Room>);
+
+      // add it to spotify queue
+      void addQueue({
+        access_token: room.accessToken,
+        device_id: room.deviceId,
+        uri: track.uri,
+      });
 
       // clear blast after 10 seconds
       setTimeout(() => {

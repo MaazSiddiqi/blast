@@ -49,7 +49,7 @@ export default function InitForm() {
   return (
     <div className="flex flex-col items-center justify-center space-y-16">
       <h1 className="text-4xl font-extrabold italic">onBlast!</h1>
-      <div className="space-y-4 px-6 py-12">
+      <div className="space-y-4 rounded-xl bg-white/20 px-6 py-12 backdrop-blur-3xl">
         <form
           onSubmit={handleJoinRoom}
           className="grid place-content-center gap-16"
