@@ -15,6 +15,7 @@ import {
 } from "@/lib/firebase";
 import { searchSong } from "@/lib/spotify";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+import { SkipBack, Pause, SkipForward, PlayIcon } from "lucide-react";
 import { Label } from "@radix-ui/react-label";
 import axios from "axios";
 import { doc, updateDoc } from "firebase/firestore";
@@ -30,6 +31,7 @@ type UserRoomProps = {
 
 export default function Room({ room, id, queue, name, host }: UserRoomProps) {
   const [newSong, setNewSong] = useState("");
+  const [play, setPlay] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -313,6 +315,17 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
             <div className="">
               <p className="font-bold">song name</p>
               <p>artist</p>
+            </div>
+            <div className="flex w-52 flex-row items-center justify-around rounded-lg outline-dashed">
+              <Button>
+                <SkipBack />
+              </Button>
+              <Button onClick={() => setPlay((prevState) => !prevState)}>
+                {!play ? <Pause /> : <PlayIcon />}
+              </Button>
+              <Button>
+                <SkipForward />
+              </Button>
             </div>
           </div>
         </div>
