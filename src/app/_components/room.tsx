@@ -334,9 +334,9 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
         uri: track.uri,
       });
 
-      void updateDoc(doc(db, "queue", room.queueId), {
-        tracks: queue.tracks.slice(1),
-      });
+      // void updateDoc(doc(db, "queue", room.queueId), {
+      //   tracks: queue.tracks.slice(1),
+      // });
 
       if (shouldSkip) {
         void skipSong({
@@ -393,9 +393,9 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
         blasted: [...room.blasted, { track, type: "disliked" }],
       } satisfies Partial<Room>);
 
-      void updateDoc(doc(db, "queue", room.queueId), {
-        tracks: queue.tracks.filter((t) => t.name !== track.name),
-      });
+      // void updateDoc(doc(db, "queue", room.queueId), {
+      //   tracks: queue.tracks.filter((t) => t.name !== track.name),
+      // });
 
       // clear blast after 10 seconds
       setTimeout(() => {
