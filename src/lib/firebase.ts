@@ -19,7 +19,8 @@ export { db };
 export const NEW_ROOM_SCHEMA = {
   members: [],
   code: "",
-  accessToken: ""
+  accessToken: "",
+  deviceId: ""
 };
 
 export type Room = typeof NEW_ROOM_SCHEMA;

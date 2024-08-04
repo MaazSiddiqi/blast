@@ -13,9 +13,12 @@ const generateRandomString = function (length: number) {
 
 export async function GET(request: Request) {
   const scope =
-    "app-remote-control \
+    "user-modify-playback-state \
+    user-read-playback-state \
+    app-remote-control \
     user-read-email \
     user-read-private \
+    user-top-read \
     streaming";
 
   const auth_query_parameters = new URLSearchParams({
@@ -26,7 +29,7 @@ export async function GET(request: Request) {
     state: generateRandomString(16),
   });
 
-  const auth_url = `https://accounts.spotify.com/authorize?${auth_query_parameters.toString()}`
+  const auth_url = `https://accounts.spotify.com/authorize?${auth_query_parameters.toString()}`;
 
   return Response.redirect(auth_url, 302);
 }
