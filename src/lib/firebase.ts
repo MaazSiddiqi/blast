@@ -25,7 +25,11 @@ export const NEW_ROOM_SCHEMA = {
   currentTrack: {
     name: "",
     uri: "",
-  },
+    submittedBy: "",
+    downvotes: [] as string[],
+    upvotes: [] as string[],
+    img: "",
+  } satisfies Track,
   playback_time: 0,
   queueId: "",
 

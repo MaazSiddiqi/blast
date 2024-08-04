@@ -45,7 +45,12 @@ const playSong = async ({ device_id, access_token }: SpotifyFunctionProps) => {
   await axios.put(
     "https://api.spotify.com/v1/me/player/play",
     { device_id: device_id },
-    { headers: { Authorization: `Bearer ${access_token}` } },
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+    },
   );
 };
 

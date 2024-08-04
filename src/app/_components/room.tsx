@@ -223,6 +223,22 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
       submittedBy: name,
     } satisfies Track;
 
+    if (room.currentTrack.name === "") {
+      void addQueue({
+        access_token: room.accessToken,
+        device_id: room.deviceId,
+        uri: song.uri,
+      });
+
+      toast({
+        title: "✅ New song added!",
+        description: `Your song "${newSong}" has been added directly to the queue.`,
+      });
+
+      setNewSong("");
+      return;
+    }
+
     void updateDoc(doc(db, "queue", room.queueId), {
       tracks: [...queue.tracks, song],
     });
@@ -256,6 +272,8 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
   const handleUpvote = (track: Track) => {
     if (!name) return;
     if (track.upvotes.includes(name)) return;
+
+    const shouldSkip = queue.tracks.length === 0;
 
     void updateDoc(doc(db, "queue", room.queueId), {
       tracks: queue.tracks.map((t) =>
@@ -293,6 +311,17 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
         device_id: room.deviceId,
         uri: track.uri,
       });
+
+      void updateDoc(doc(db, "queue", room.queueId), {
+        tracks: queue.tracks.slice(1),
+      });
+
+      if (shouldSkip) {
+        void skipSong({
+          access_token: room.accessToken,
+          device_id: room.deviceId,
+        });
+      }
 
       // clear blast after 10 seconds
       setTimeout(() => {
