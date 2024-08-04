@@ -14,6 +14,9 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import logo from "@/assets/blast-logo.png"
+import Image from "next/image";
+
 
 export default function InitForm() {
   const router = useRouter();
@@ -48,7 +51,10 @@ export default function InitForm() {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-16">
-      <h1 className="text-4xl font-extrabold italic">onBlast!</h1>
+      <div className="flex flex-col items-center justify-center">
+        <Image src={logo} alt="logo" className="w-48 h-28" />
+        <h1 className="text-4xl font-extrabold italic">Blast!</h1>
+      </div>
       <div className="space-y-4 rounded-xl bg-white/20 px-6 py-12 backdrop-blur-3xl">
         <form
           onSubmit={handleJoinRoom}
