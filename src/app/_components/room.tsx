@@ -1,32 +1,29 @@
 "use client";
 
 import { Button } from "@/_components/ui/button";
-import { Card } from "@/_components/ui/card";
 import { Input } from "@/_components/ui/input";
 import { Separator } from "@/_components/ui/separator";
 import {
   Sheet,
-  SheetTrigger,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
+  SheetTrigger,
 } from "@/_components/ui/sheet";
 import { ToastAction } from "@/_components/ui/toast";
 import { useToast } from "@/_components/ui/use-toast";
 import {
   type Blast,
   db,
-  type Track,
   type Queue,
   type Room,
+  type Track,
 } from "@/lib/firebase";
 import {
   addQueue,
   pauseSong,
-  playbackState,
   playSong,
-  previousSong,
   searchSong,
   skipSong,
 } from "@/lib/spotify";
@@ -52,36 +49,7 @@ type UserRoomProps = {
 
 export default function Room({ room, id, queue, name, host }: UserRoomProps) {
   const [newSong, setNewSong] = useState("");
-  const [play, setPlay] = useState(false);
   const { toast } = useToast();
-
-  // poll spotify track progress every 3 seconds
-  // useEffect(() => {
-  //   if (!host) return;
-
-  //   const interval = setInterval(
-  //     () => {
-  //       const state = async () => {
-  //         const pop = queue.tracks[0];
-
-  //         void updateDoc(doc(db, "queue", room.queueId), {
-  //           tracks: queue.tracks.slice(1),
-  //         });
-
-  //         void addQueue({
-  //           access_token: room.accessToken,
-  //           device_id: room.deviceId,
-  //           uri: pop!.uri,
-  //         });
-  //       };
-
-  //       void state();
-  //     },
-  //     60 * 2.5 * 1000,
-  //   );
-
-  //   return () => clearInterval(interval);
-  // }, [room.deviceId, room.accessToken, host, room.queueId, queue.tracks]);
 
   useEffect(() => {
     const enterRoom = async () => {
@@ -106,6 +74,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
   useEffect(() => {
     if (room.newSuggestion.name && room.newSuggestion.submittedBy !== name) {
       toast({
+        duration: 5000,
         title: `New suggestion: ${room.newSuggestion.name}`,
         description: `${room.newSuggestion.submittedBy} added a new song!`,
         action: (
@@ -114,13 +83,13 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
               altText="groovy"
               onClick={() => handleUpvote(room.newSuggestion)}
             >
-              groovy 💃
+              blast 🙌
             </ToastAction>
             <ToastAction
               altText="blast"
               onClick={() => handleDownvote(room.newSuggestion)}
             >
-              blast 💥
+              pass 🚫
             </ToastAction>
           </div>
         ),
