@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Inter as FontSans } from "next/font/google";
+import { Toaster } from "@/_components/ui/toaster";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -25,11 +26,12 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable}`}>
       <body
         className={cn(
-          "bg-background min-h-screen font-sans antialiased",
+          "min-h-screen bg-background font-sans antialiased",
           fontSans.variable,
         )}
       >
         <TRPCReactProvider>{children}</TRPCReactProvider>
+        <Toaster />
       </body>
     </html>
   );

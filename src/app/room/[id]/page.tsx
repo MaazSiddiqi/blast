@@ -1,7 +1,6 @@
 "use client";
 
-import HostRoom from "@/app/_components/hostRoom";
-import UserRoom from "@/app/_components/userRoom";
+import Room from "@/app/_components/room";
 import { db, type Queue, type Room } from "@/lib/firebase";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,7 +27,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [room, setRoom] = useState<Room>();
   const [queue, setQueue] = useState<Queue>();
   const isHost = useMemo(
-    () => searchParams.get("host") || room?.hostname === name,
+    () => !!searchParams.get("host") || room?.hostname === name,
     [room, name],
   );
 
@@ -54,9 +53,5 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (!room || !queue || !name) return null;
 
-  if (isHost) {
-    return <HostRoom room={room} />;
-  } else {
-    return <UserRoom room={room} id={id} queue={queue} name={name} />;
-  }
+  return <Room room={room} id={id} queue={queue} name={name} host={isHost} />;
 }
