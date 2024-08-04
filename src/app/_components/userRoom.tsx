@@ -3,11 +3,13 @@
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Separator } from "@/_components/ui/separator";
-import { db, Track, type Queue, type Room } from "@/lib/firebase";
+import { db, type Track, type Queue, type Room } from "@/lib/firebase";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { Label } from "@radix-ui/react-label";
+import axios from "axios";
 import { doc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { searchSong } from "@/lib/spotify";
 
 type UserRoomProps = {
   id: string;
@@ -41,6 +43,21 @@ export default function UserRoom({ room, id, queue, name }: UserRoomProps) {
 
   const handleSubmitSong = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Get the query from the event
+
+    // Get our tokens from firebase
+    const res = await axios.get("/api/firebase/tokens", {
+      params: { roomId: id },
+    });
+
+    const songs = await searchSong({
+      search_text: newSong,
+      access_token: res.data as string,
+    });
+
+    // send it to our spotify search util
+
     if (!newSong) return;
 
     const newSongExists = queue.tracks.some((track) => track.name === newSong);
