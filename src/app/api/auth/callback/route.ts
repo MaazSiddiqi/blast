@@ -3,8 +3,8 @@ import {
   db,
   NEW_QUEUE_SCHEMA,
   NEW_ROOM_SCHEMA,
-  Queue,
-  Room,
+  type Queue,
+  type Room,
 } from "@/lib/firebase";
 import axios from "axios";
 import { addDoc, collection } from "firebase/firestore";

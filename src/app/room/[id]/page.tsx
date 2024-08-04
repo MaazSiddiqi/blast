@@ -3,13 +3,12 @@
 import Room from "@/app/_components/room";
 import { db, type Queue, type Room } from "@/lib/firebase";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const name = useMemo(() => {
     const _name = localStorage.getItem("name");

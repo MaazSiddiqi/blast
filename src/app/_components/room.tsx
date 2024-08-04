@@ -4,9 +4,11 @@ import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Separator } from "@/_components/ui/separator";
 import { useToast } from "@/_components/ui/use-toast";
-import { Blast, db, Track, type Queue, type Room } from "@/lib/firebase";
+import { type Blast, db, type Track, type Queue, type Room } from "@/lib/firebase";
+import { searchSong } from "@/lib/spotify";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { Label } from "@radix-ui/react-label";
+import axios from "axios";
 import { doc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
@@ -100,6 +102,20 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     if (!newSong) return;
 
     const newSongExists = queue.tracks.some((track) => track.name === newSong);
+
+    // Get our tokens from firebase
+    const res = await axios.get("/api/firebase/tokens", {
+      params: { roomId: id },
+    });
+
+    // Query for song in Spotify
+    const songs = await searchSong({
+      search_text: newSong,
+      access_token: res.data as string,
+    });
+
+    // add the top result selected song uri to the queue
+    const song_uri = songs.data.tracks.items[0].uri;
 
     if (newSongExists) {
       alert("Song already in queue");
