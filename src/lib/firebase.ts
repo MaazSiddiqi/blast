@@ -29,8 +29,21 @@ export const NEW_ROOM_SCHEMA = {
   playback_time: 0,
   queueId: "",
 
-  newSuggestion: "",
-  blast: "",
+  newSuggestion: {
+    name: "",
+    uri: "",
+    submittedBy: "",
+    downvotes: [] as string[],
+    upvotes: [] as string[],
+    img: "",
+  } satisfies Track,
+  blast: {
+    name: "",
+    uri: "",
+    submittedBy: "",
+    type: "dislike" as "like" | "dislike",
+  } satisfies Blast,
+  blasted: [] as { track: Track; type: "like" | "disliked" }[],
 };
 
 export const NEW_QUEUE_SCHEMA = {
@@ -46,4 +59,11 @@ export type Track = {
   downvotes: string[];
   img: string;
   submittedBy: string;
+};
+
+export type Blast = {
+  name: string;
+  uri: string;
+  submittedBy: string;
+  type: "like" | "dislike";
 };
