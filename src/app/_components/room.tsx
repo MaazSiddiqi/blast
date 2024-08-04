@@ -228,7 +228,16 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
         access_token: room.accessToken,
         device_id: room.deviceId,
         uri: song.uri,
+      }).then(() => {
+        void skipSong({
+          access_token: room.accessToken,
+          device_id: room.deviceId,
+        });
       });
+
+      void updateDoc(doc(db, "rooms", id), {
+        currentTrack: song,
+      } satisfies Partial<Room>);
 
       toast({
         title: "✅ New song added!",
@@ -370,6 +379,10 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
         },
         blasted: [...room.blasted, { track, type: "disliked" }],
       } satisfies Partial<Room>);
+
+      void updateDoc(doc(db, "queue", room.queueId), {
+        tracks: queue.tracks.filter((t) => t.name !== track.name),
+      });
 
       // clear blast after 10 seconds
       setTimeout(() => {
