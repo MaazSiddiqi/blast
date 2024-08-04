@@ -13,7 +13,13 @@ import {
   type Queue,
   type Room,
 } from "@/lib/firebase";
-import { searchSong } from "@/lib/spotify";
+import {
+  pauseSong,
+  playSong,
+  previousSong,
+  searchSong,
+  skipSong,
+} from "@/lib/spotify";
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { SkipBack, Pause, SkipForward, PlayIcon } from "lucide-react";
 import { Label } from "@radix-ui/react-label";
@@ -297,6 +303,34 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     }
   };
 
+  const handlePrevious = async () => {
+    await previousSong({
+      device_id: room.deviceId,
+      access_token: room.accessToken,
+    });
+  };
+
+  const handleNext = async () => {
+    await skipSong({
+      device_id: room.deviceId,
+      access_token: room.accessToken,
+    });
+  };
+
+  // const handlePause = async (curr: boolean) => {
+  //   if (curr) {
+  //     await pauseSong({
+  //       device_id: room.deviceId,
+  //       access_token: room.accessToken,
+  //     });
+  //   } else {
+  //     await playSong({
+  //       device_id: room.deviceId,
+  //       access_token: room.accessToken,
+  //     });
+  //   }
+  // };
+
   return (
     <div className="relative flex min-h-screen w-screen flex-col">
       <div className="sticky top-0 ml-8 mt-28 flex w-full flex-col md:flex-row md:items-center">
@@ -317,13 +351,13 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
               <p>artist</p>
             </div>
             <div className="flex w-52 flex-row items-center justify-around rounded-lg outline-dashed">
-              <Button>
+              <Button onClick={handlePrevious}>
                 <SkipBack />
               </Button>
               <Button onClick={() => setPlay((prevState) => !prevState)}>
                 {!play ? <Pause /> : <PlayIcon />}
               </Button>
-              <Button>
+              <Button onClick={handleNext}>
                 <SkipForward />
               </Button>
             </div>
