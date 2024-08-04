@@ -104,7 +104,7 @@ export default function InitForm() {
       <Separator />
 
       <div className="grid w-full place-items-center">
-        <Button className="w-full" onClick={handleCreateRoom}>
+        <Button className="w-full" onClick={handleCreateRoom} disabled={!name}>
           create a room
         </Button>
       </div>

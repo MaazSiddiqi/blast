@@ -4,13 +4,13 @@ import HostRoom from "@/app/_components/hostRoom";
 import UserRoom from "@/app/_components/userRoom";
 import { db, type Queue, type Room } from "@/lib/firebase";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { useSearchParams } from "next/navigation";
-import { hostname } from "os";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const name = useMemo(() => {
     const _name = localStorage.getItem("name");
@@ -52,11 +52,11 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room]);
 
-  if (!room || !queue) return null;
+  if (!room || !queue || !name) return null;
 
   if (isHost) {
     return <HostRoom room={room} />;
   } else {
-    return <UserRoom room={room} id={id} queue={queue} />;
+    return <UserRoom room={room} id={id} queue={queue} name={name} />;
   }
 }

@@ -13,11 +13,11 @@ type UserRoomProps = {
   id: string;
   room: Room;
   queue: Queue;
+  name: string;
 };
 
-export default function UserRoom({ room, id, queue }: UserRoomProps) {
+export default function UserRoom({ room, id, queue, name }: UserRoomProps) {
   const [newSong, setNewSong] = useState("");
-  const name = localStorage.getItem("name");
 
   useEffect(() => {
     const enterRoom = async () => {
@@ -123,10 +123,7 @@ export default function UserRoom({ room, id, queue }: UserRoomProps) {
             <div className="max-h-[50vh] overflow-scroll">
               {queue.tracks.map((track) => {
                 const isUpvoted = track.upvotes.includes(name);
-
-                const isDownvoted = track.downvotes.includes(
-                  localStorage.getItem("name"),
-                );
+                const isDownvoted = track.downvotes.includes(name);
 
                 return (
                   <>
