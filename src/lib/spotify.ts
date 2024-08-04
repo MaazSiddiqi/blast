@@ -13,7 +13,11 @@ const playbackState = async ({ access_token }: SpotifyFunctionProps) => {
   });
   if (!res.data) return -1;
 
-  return res.data.duration_ms - res.data.progress_ms;
+  return {
+    remaining: res.data.duration_ms - res.data.progress_ms,
+    uri: res.data.uri,
+    name: res.data.name,
+  };
 };
 
 const addQueue = async ({
