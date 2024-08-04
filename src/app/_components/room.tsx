@@ -4,6 +4,14 @@ import { Button } from "@/_components/ui/button";
 import { Card } from "@/_components/ui/card";
 import { Input } from "@/_components/ui/input";
 import { Separator } from "@/_components/ui/separator";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/_components/ui/sheet";
 import { ToastAction } from "@/_components/ui/toast";
 import { useToast } from "@/_components/ui/use-toast";
 import {
@@ -15,13 +23,19 @@ import {
 } from "@/lib/firebase";
 import {
   pauseSong,
+  playbackState,
   playSong,
   previousSong,
   searchSong,
   skipSong,
 } from "@/lib/spotify";
-import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
-import { SkipBack, Pause, SkipForward, PlayIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  LockClosedIcon,
+  PauseIcon,
+  PlayIcon,
+} from "@radix-ui/react-icons";
 import { Label } from "@radix-ui/react-label";
 import axios from "axios";
 import { doc, updateDoc } from "firebase/firestore";
@@ -39,6 +53,27 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
   const [newSong, setNewSong] = useState("");
   const [play, setPlay] = useState(false);
   const { toast } = useToast();
+
+  // poll spotify track progress every 3 seconds
+  useEffect(() => {
+    if (!host) return;
+
+    const interval = setInterval(() => {
+      const state = async () => {
+        const {} = await playbackState({
+          access_token: room.accessToken,
+        });
+
+        if (duration < 10) {
+          // pop from queue
+          // set as current
+          // update queue in spotify
+        }
+      };
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [room.deviceId, room.accessToken, host]);
 
   useEffect(() => {
     const enterRoom = async () => {
@@ -150,13 +185,19 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     });
 
     // Query for song in Spotify
-    const songs = await searchSong({
+    const songs = (await searchSong({
       search_text: newSong,
       access_token: res.data as string,
-    });
+    })) as { data: { tracks: { items: { uri: string; name: string }[] } } };
+
+    if (songs.data.tracks.items.length === 0) {
+      alert("Song not found");
+      return;
+    }
 
     // add the top result selected song uri to the queue
-    const song_uri = songs.data.tracks.items[0].uri;
+    const song_uri = songs.data.tracks.items[0]!.uri;
+    const song_name = songs.data.tracks.items[0]!.name;
 
     if (newSongExists) {
       alert("Song already in queue");
@@ -166,8 +207,8 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     if (!name) return;
 
     const song = {
-      name: newSong,
-      uri: newSong,
+      name: song_name,
+      uri: song_uri,
       upvotes: [name],
       downvotes: [],
       img: "",
@@ -179,14 +220,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     });
 
     void updateDoc(doc(db, "rooms", id), {
-      newSuggestion: {
-        name: newSong,
-        uri: newSong,
-        submittedBy: name,
-        downvotes: [],
-        upvotes: [name],
-        img: "",
-      },
+      newSuggestion: song,
     } satisfies Partial<Room>);
 
     toast({
@@ -221,7 +255,9 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
           ? {
               ...t,
               upvotes: [...t.upvotes, name],
-              downvotes: t.downvotes.filter((downvote) => downvote !== name),
+              downvotes: t.downvotes.filter(
+                (downvote) => downvote !== name && room.members.includes(name),
+              ),
             }
           : t,
       ),
@@ -267,7 +303,9 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
           ? {
               ...t,
               downvotes: [...t.downvotes, name],
-              upvotes: t.upvotes.filter((upvote) => upvote !== name),
+              upvotes: t.upvotes.filter(
+                (upvote) => upvote !== name && room.members.includes(name),
+              ),
             }
           : t,
       ),
@@ -303,37 +341,30 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     }
   };
 
-  const handlePrevious = async () => {
-    await previousSong({
-      device_id: room.deviceId,
+  const handlePlay = async () => {
+    void playSong({
       access_token: room.accessToken,
+      device_id: room.deviceId,
     });
   };
 
-  const handleNext = async () => {
-    await skipSong({
-      device_id: room.deviceId,
+  const handlePause = async () => {
+    void pauseSong({
       access_token: room.accessToken,
+      device_id: room.deviceId,
     });
   };
 
-  // const handlePause = async (curr: boolean) => {
-  //   if (curr) {
-  //     await pauseSong({
-  //       device_id: room.deviceId,
-  //       access_token: room.accessToken,
-  //     });
-  //   } else {
-  //     await playSong({
-  //       device_id: room.deviceId,
-  //       access_token: room.accessToken,
-  //     });
-  //   }
-  // };
+  const handleSkip = async () => {
+    void skipSong({
+      access_token: room.accessToken,
+      device_id: room.deviceId,
+    });
+  };
 
   return (
     <div className="relative flex min-h-screen w-screen flex-col">
-      <div className="sticky top-0 ml-8 mt-28 flex w-full flex-col md:flex-row md:items-center">
+      <div className="sticky top-0 ml-8 mt-28 flex w-full flex-col bg-white md:flex-row md:items-center">
         <div className="space-y-4 p-4">
           <h1 className="w-fit bg-slate-50 px-5 py-6 text-6xl font-extrabold">
             {room.code}
@@ -342,69 +373,139 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
             hosted by: <strong>{room.hostname}</strong>
           </h2>
         </div>
-        <div className="space-y-2 px-4 md:ml-8">
-          <p className="text-lg font-bold">now playing</p>
-          <div className="flex space-x-2 py-3">
-            <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
-            <div className="">
-              <p className="font-bold">song name</p>
-              <p>artist</p>
+        {host && (
+          <div>
+            <div className="space-y-2 px-4 md:ml-8">
+              <p className="text-lg font-bold">now playing</p>
+              <div className="flex space-x-2 py-3">
+                <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+                <div className="">
+                  <p className="font-bold">
+                    {room.currentTrack.name || "no track playing"}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="flex w-52 flex-row items-center justify-around rounded-lg outline-dashed">
-              <Button onClick={handlePrevious}>
-                <SkipBack />
+            <div className="flex space-x-4 p-4">
+              <Button variant={"outline"}>Previous</Button>
+              <Button variant={"outline"} onClick={handlePlay}>
+                <PlayIcon />
               </Button>
-              <Button onClick={() => setPlay((prevState) => !prevState)}>
-                {!play ? <Pause /> : <PlayIcon />}
+              <Button variant={"outline"} onClick={handlePause}>
+                <PauseIcon />
               </Button>
-              <Button onClick={handleNext}>
-                <SkipForward />
+              <Button variant={"outline"} onClick={handleSkip}>
+                Skip
               </Button>
             </div>
           </div>
-        </div>
+        )}
+
+        {!host && room.currentTrack.name && (
+          <div className="space-y-2 px-4 md:ml-8">
+            <p className="text-lg font-bold">now playing</p>
+            <div className="flex space-x-2 py-3">
+              <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+              <div className="">
+                <p className="font-bold">{room.currentTrack.name}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <Separator />
-      <div className="ml-8 p-4">
-        <div className="flex space-x-2 py-3">
-          <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
-          <div className="">
-            <p className="font-bold">song name</p>
-            <p>artist</p>
-          </div>
-        </div>
-        <div className="flex space-x-2 py-3">
-          <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
-          <div className="">
-            <p className="font-bold">song name</p>
-            <p>artist</p>
-          </div>
-        </div>
-        <div className="flex space-x-2 py-3">
-          <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
-          <div className="">
-            <p className="font-bold">song name</p>
-            <p>artist</p>
-          </div>
-        </div>
-        {queue.tracks.map((track) => (
-          <div key={track.uri} className="flex space-x-2 py-3">
-            <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
-            <div className="">
-              <p className="font-bold">song name</p>
-              <p>artist</p>
+      <div className="flex w-full space-x-4 divide-y">
+        <div className="mb-20 ml-8 grow p-4">
+          {queue.tracks.length === 0 && (
+            <div className="flex h-96 items-center justify-center">
+              <p className="text-lg">No songs in queue</p>
             </div>
+          )}
+          {queue.tracks.map((track) => {
+            const blasted = room.blasted.find(
+              (t) => t.track.name === track.name,
+            );
+
+            return (
+              <div
+                key={track.uri}
+                className="flex justify-between space-x-2 px-3 py-3 odd:bg-slate-50"
+              >
+                <div className="flex space-x-2">
+                  <div className="h-20 w-20 bg-slate-100 text-slate-100">a</div>
+                  <div className="">
+                    <p className="max-w-[70%] font-bold">{track.name}</p>
+                    <p>
+                      Submitted by <strong>{track.submittedBy}</strong>
+                    </p>
+                  </div>
+                </div>
+                {!blasted ? (
+                  <div className="flex">
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleUpvote(track)}
+                      className={`${track.upvotes.includes(name) ? "text-green-600" : ""}`}
+                    >
+                      🙌 {track.upvotes.length}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleDownvote(track)}
+                      className={`${track.downvotes.includes(name) ? "text-red-600" : ""}`}
+                    >
+                      🚫 {track.downvotes.length}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="px-2">
+                    {blasted.type === "like" ? "🎉" : "💀"}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <div className="fixed bottom-0 left-0 w-screen px-12 py-4">
+            <form
+              onSubmit={handleSubmitSong}
+              className="flex space-x-3 rounded-xl bg-white p-3"
+            >
+              <Input
+                value={newSong}
+                onChange={(e) => setNewSong(e.target.value)}
+              />
+              <Button type="submit">🚀 Suggest</Button>
+            </form>
           </div>
-        ))}
-        <div className="fixed bottom-0 left-0 w-screen px-12 py-4">
-          <Card className="flex space-x-3 p-3">
-            <Input
-              value={newSong}
-              onChange={(e) => setNewSong(e.target.value)}
-            />
-            <Button>🚀 Suggest</Button>
-          </Card>
         </div>
+        <div className="hidden w-1/4 space-y-2 py-4 md:block">
+          <h3 className="font-bold">members</h3>
+          {room.members.map((member) => (
+            <div key={member}>
+              <p>{member}</p>
+            </div>
+          ))}
+        </div>
+        <div className="fixed right-8 top-8 md:hidden">
+          <Sheet>
+            <SheetTrigger className="m-4">
+              <Button>members</Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>members</SheetTitle>
+                <SheetDescription>
+                  {room.members.map((member) => (
+                    <div key={member}>
+                      <p>{member}</p>
+                    </div>
+                  ))}
+                </SheetDescription>
+              </SheetHeader>
+            </SheetContent>
+          </Sheet>
+        </div>
+        {room.blast.name && <Blast {...room.blast} />}
       </div>
     </div>
   );
