@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     response_type: "code",
     client_id: env.SPOTIFY_CLIENT_ID,
     scope: scope,
-    redirect_uri: "http://localhost:3000/api/auth/callback",
+    redirect_uri: `${process.env.NEXT_PUBLIC_URL}/api/auth/callback`,
     state: generateRandomString(16),
   });
 
