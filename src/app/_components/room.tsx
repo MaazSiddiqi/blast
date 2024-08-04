@@ -22,6 +22,7 @@ import {
   type Room,
 } from "@/lib/firebase";
 import {
+  addQueue,
   pauseSong,
   playbackState,
   playSong,
@@ -60,20 +61,36 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
 
     const interval = setInterval(() => {
       const state = async () => {
-        const {} = await playbackState({
+        const { name, remaining, uri } = await playbackState({
           access_token: room.accessToken,
         });
 
-        if (duration < 10) {
-          // pop from queue
-          // set as current
-          // update queue in spotify
+        console.log({ name, remaining, uri });
+
+        if (remaining > 10 * 1000 || queue.tracks.length === 0) {
+          return;
         }
+
+        console.log("skipping track");
+
+        const pop = queue.tracks[0];
+
+        void updateDoc(doc(db, "queue", room.queueId), {
+          tracks: queue.tracks.slice(1),
+        });
+
+        void addQueue({
+          access_token: room.accessToken,
+          device_id: room.deviceId,
+          uri: pop!.uri,
+        });
       };
+
+      void state();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [room.deviceId, room.accessToken, host]);
+  }, [room.deviceId, room.accessToken, host, room.queueId, queue.tracks]);
 
   useEffect(() => {
     const enterRoom = async () => {

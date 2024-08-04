@@ -11,11 +11,14 @@ const playbackState = async ({ access_token }: SpotifyFunctionProps) => {
   const res = await axios.get("https://api.spotify.com/v1/me/players", {
     headers: { Authorization: `Bearer ${access_token}` },
   });
-  if (!res.data) return -1;
+  if (!res.data) return { remaining: 0, uri: "", name: "" };
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     remaining: res.data.duration_ms - res.data.progress_ms,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     uri: res.data.uri,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     name: res.data.name,
   };
 };
