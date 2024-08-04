@@ -3,9 +3,20 @@
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Separator } from "@/_components/ui/separator";
+import { ToastAction } from "@/_components/ui/toast";
 import { useToast } from "@/_components/ui/use-toast";
-import { Blast, db, Track, type Queue, type Room } from "@/lib/firebase";
-import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+import {
+  type Blast,
+  db,
+  type Queue,
+  type Room,
+  type Track,
+} from "@/lib/firebase";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  LockClosedIcon,
+} from "@radix-ui/react-icons";
 import { Label } from "@radix-ui/react-label";
 import { doc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -41,6 +52,31 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
     void enterRoom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (room.newSuggestion.name && room.newSuggestion.submittedBy !== name) {
+      toast({
+        title: `New suggestion: ${room.newSuggestion.name}`,
+        description: `${room.newSuggestion.submittedBy} added a new song!`,
+        action: (
+          <div className="space-x-2">
+            <ToastAction
+              altText="groovy"
+              onClick={() => handleUpvote(room.newSuggestion)}
+            >
+              groovy 💃
+            </ToastAction>
+            <ToastAction
+              altText="blast"
+              onClick={() => handleDownvote(room.newSuggestion)}
+            >
+              blast 💥
+            </ToastAction>
+          </div>
+        ),
+      });
+    }
+  }, [name, room.newSuggestion.name, room.newSuggestion.submittedBy, toast]);
 
   const Blast = (blast: Blast) => {
     const { name, uri, submittedBy, type } = blast;
@@ -136,6 +172,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
       title: "✅ New song added!",
       description: `Your song "${newSong}" has been added to the queue.`,
     });
+
     // clear blast after 10 seconds
     setTimeout(() => {
       void updateDoc(doc(db, "rooms", id), {
@@ -155,7 +192,6 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
 
   const handleUpvote = (track: Track) => {
     if (!name) return;
-
     if (track.upvotes.includes(name)) return;
 
     void updateDoc(doc(db, "queue", room.queueId), {
@@ -172,7 +208,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
 
     const shouldBlast =
       room.members.length >= 3 &&
-      track.upvotes.length >= room.members.length / 2 &&
+      track.upvotes.length > room.members.length / 2 &&
       !room.blasted.some((t) => t.track.name === track.name);
 
     if (shouldBlast) {
@@ -279,9 +315,11 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
                   <>
                     <div
                       key={track.name}
-                      className={`flex justify-between py-3 ${blasted && "bg-red-50"}`}
+                      className={`flex justify-between px-3 py-3 ${blasted && "bg-slate-50"}`}
                     >
-                      <p>{track.name}</p>
+                      <p className="flex items-center gap-2">
+                        {blasted && <LockClosedIcon />} {track.name}
+                      </p>
                       {!blasted ? (
                         <div>
                           <Label>
@@ -305,7 +343,7 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
                         </div>
                       ) : (
                         <div className="px-2">
-                          {blasted.type === "like" ? "🎉" : "🤮"}
+                          {blasted.type === "like" ? "🎉" : "💀"}
                         </div>
                       )}
                     </div>
@@ -335,9 +373,6 @@ export default function Room({ room, id, queue, name, host }: UserRoomProps) {
           </div>
         </div>
       </div>
-      {/* {room.newSuggestion.name && room.newSuggestion.submittedBy !== name && (
-        <Suggestion {...room.newSuggestion} />
-      )} */}
       {room.blast.name && <Blast {...room.blast} />}
     </div>
   );

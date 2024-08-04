@@ -10,24 +10,8 @@ import {
 } from "@/_components/ui/input-otp";
 import { Label } from "@/_components/ui/label";
 import { Separator } from "@/_components/ui/separator";
-import {
-  db,
-  NEW_QUEUE_SCHEMA,
-  NEW_ROOM_SCHEMA,
-  Queue,
-  Room,
-} from "@/lib/firebase";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
@@ -63,50 +47,57 @@ export default function InitForm() {
   };
 
   return (
-    <div className="space-y-4">
-      <form
-        onSubmit={handleJoinRoom}
-        className="grid place-content-center gap-16"
-      >
-        <div className="space-y-2">
-          <Label>Name</Label>
-          <Input
-            placeholder="bob ross"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+    <div className="flex flex-col items-center justify-center space-y-16">
+      <h1 className="text-4xl font-extrabold italic">onBlast!</h1>
+      <div className="space-y-4 px-6 py-12">
+        <form
+          onSubmit={handleJoinRoom}
+          className="grid place-content-center gap-16"
+        >
+          <div className="space-y-2">
+            <Label>Name</Label>
+            <Input
+              placeholder="bob ross"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
 
-        <div className="w-full space-y-2">
-          <InputOTP
+          <div className="w-full space-y-2">
+            <InputOTP
+              disabled={!name}
+              maxLength={6}
+              value={code}
+              onChange={(val) => setCode(val)}
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+              </InputOTPGroup>
+              <InputOTPSeparator />
+              <InputOTPGroup>
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+            <Button type="submit" className="w-full" disabled={!name}>
+              join room
+            </Button>
+          </div>
+        </form>
+        <Separator />
+
+        <div className="grid w-full place-items-center">
+          <Button
+            className="w-full"
+            onClick={handleCreateRoom}
             disabled={!name}
-            maxLength={6}
-            value={code}
-            onChange={(val) => setCode(val)}
           >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-            </InputOTPGroup>
-            <InputOTPSeparator />
-            <InputOTPGroup>
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
-          <Button type="submit" className="w-full" disabled={!name}>
-            join room
+            create a room
           </Button>
         </div>
-      </form>
-      <Separator />
-
-      <div className="grid w-full place-items-center">
-        <Button className="w-full" onClick={handleCreateRoom} disabled={!name}>
-          create a room
-        </Button>
       </div>
     </div>
   );
