@@ -3,10 +3,9 @@ import "@/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
-import { cn } from "@/lib/utils";
-import { TRPCReactProvider } from "@/trpc/react";
-import { Inter as FontSans } from "next/font/google";
 import { Toaster } from "@/_components/ui/toaster";
+import { cn } from "@/lib/utils";
+import { Inter as FontSans } from "next/font/google";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -30,7 +29,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        {children}
         <Toaster />
       </body>
     </html>
