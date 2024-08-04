@@ -20,6 +20,8 @@ export const NEW_ROOM_SCHEMA = {
   code: -1,
   members: [] as string[],
   hostname: "",
+  accessToken: "",
+  deviceId: "",
   currentTrack: {
     name: "",
     uri: "",

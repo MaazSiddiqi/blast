@@ -57,22 +57,9 @@ export default function InitForm() {
   };
 
   const handleCreateRoom = async () => {
-    const roomCode = Math.floor(100000 + Math.random() * 900000);
     localStorage.setItem("name", name);
 
-    const queueRes = await addDoc(collection(db, "queue"), {
-      ...NEW_QUEUE_SCHEMA,
-    } satisfies Queue);
-
-    const res = await addDoc(collection(db, "rooms"), {
-      ...NEW_ROOM_SCHEMA,
-      code: roomCode,
-      hostname: name,
-      members: [name],
-      queueId: queueRes.id,
-    } satisfies Room);
-
-    router.push(`/room/${res.id}`);
+    router.push("/api/auth/login");
   };
 
   return (
@@ -117,7 +104,7 @@ export default function InitForm() {
       <Separator />
 
       <div className="grid w-full place-items-center">
-        <Button className="w-full" onClick={handleCreateRoom} disabled={!name}>
+        <Button className="w-full" onClick={handleCreateRoom}>
           create a room
         </Button>
       </div>

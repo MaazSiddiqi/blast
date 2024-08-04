@@ -3,16 +3,34 @@
 import HostRoom from "@/app/_components/hostRoom";
 import UserRoom from "@/app/_components/userRoom";
 import { db, type Queue, type Room } from "@/lib/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { useSearchParams } from "next/navigation";
+import { hostname } from "os";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const name = useMemo(() => localStorage.getItem("name"), []);
+  const searchParams = useSearchParams();
+
+  const name = useMemo(() => {
+    const _name = localStorage.getItem("name");
+
+    if (searchParams.get("host")) {
+      updateDoc(doc(db, "rooms", id), {
+        hostname: _name || "",
+        members: [_name || ""],
+      });
+    }
+
+    return _name;
+  }, []);
 
   const [room, setRoom] = useState<Room>();
   const [queue, setQueue] = useState<Queue>();
-  const isHost = useMemo(() => room?.hostname === name, [room, name]);
+  const isHost = useMemo(
+    () => searchParams.get("host") || room?.hostname === name,
+    [room, name],
+  );
 
   useEffect(() => {
     return onSnapshot(doc(db, "rooms", id), (snapshot) => {

@@ -1,5 +1,11 @@
 import { env } from "@/env";
-import { db, NEW_ROOM_SCHEMA } from "@/lib/firebase";
+import {
+  db,
+  NEW_QUEUE_SCHEMA,
+  NEW_ROOM_SCHEMA,
+  Queue,
+  Room,
+} from "@/lib/firebase";
 import axios from "axios";
 import { addDoc, collection } from "firebase/firestore";
 import { type NextRequest, NextResponse } from "next/server";
@@ -52,12 +58,23 @@ export async function GET(req: NextRequest) {
 
   const roomCode = Math.floor(100000 + Math.random() * 900000);
 
+  if (!device_id) {
+    return NextResponse.redirect(new URL("/?error=no_device_found", req.url));
+  }
+
+  const queueRes = await addDoc(collection(db, "queue"), {
+    ...NEW_QUEUE_SCHEMA,
+  } satisfies Queue);
+
   const res = await addDoc(collection(db, "rooms"), {
     ...NEW_ROOM_SCHEMA,
     code: roomCode,
+    hostname: "",
     accessToken: access_token,
     deviceId: device_id,
-  });
+    members: [],
+    queueId: queueRes.id,
+  } satisfies Room);
 
-  return NextResponse.redirect(new URL(`/room/${res.id}`, req.url));
+  return NextResponse.redirect(new URL(`/room/${res.id}?host=true`, req.url));
 }
